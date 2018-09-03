@@ -1,0 +1,61 @@
+\section{Scheduling}
+%\subsection{Zustände}
+1 Prozessor max. 1 Thread (= \textit{running}), \textit{ready} (alle in Ready-Queue), \textit{waiting}
+%Übergänge zwischen Zuständen durch OS:
+%\begin{itemize}
+%    \item kein busy-wait/Endlosschleife, OS registriert Ereignis und setzt Thread auf \textit{waiting}
+%    \item Ereignis $\rightarrow$ \textit{ready}
+%\end{itemize}
+\textbf{Powerdown-Modus: }Wenn kein Thread \textit{ready}, Prozessor vom OS in Standby, Interrupt $\rightarrow$ wieder normale Operation
+
+%\subsection{Arten von Threads}
+%\begin{description}
+%\item[I/O Lastig]häufige Kommunikation mit I/O Geräten, rechnet wenig
+%\item[Prozessor-lastig]wenig Kommunikation, rechnet viel (z.B. Grafikberechnungen)
+%\end{description}
+
+\subsection{Laufzeit eines Threats}
+\textbf{Umsetzung eines nebenläufigen Systems: }\textit{kooperativ $\rightarrow$ Thread entscheidet}, präemptiv $\rightarrow$ Scheduler entscheidet
+
+%Aktuelle Thread läuft solange bis:
+%\begin{itemize}
+%    \item \textit{wartet auf I/O-Daten, blockiert
+%    \item wartet auf anderen Thread/Ressource, blockiert
+%    \item freiwillig verzichtet}
+%    \item System-Timer-Interrupt
+%    \item anderer Thread ready wird und bevorzugt wird
+%    \item neuer Prozess erzeugt und bevorzugt wird
+%\end{itemize}
+
+\subsection{Ausführungsarten}
+\textbf{Parallel:} Alle Threads gleichzeitig: für $n$ Threads $n$ Prozessoren, \textbf{Quasiparallel:} $n$ Threads auf $< n$ Prozessoren abwechselnd (es entsteht der Eindruck es sei parallel), \textbf{Nebenläufig:} Oberbegriff für Parallel/Quasiparrallel%, thread-basierte Programme sind nebenläufig
+
+%\subsection{Bursts}
+%\textbf{Prozessor-Burst: }Thread belegt Prozessor voll, \textit{running} bis \textit{waiting}, schwarzer Balken \textbf{I/O Burst: } Thread benötigt Prozessor nicht, %\textit{waiting} bis \textit{ready}, grau gestrichelt
+
+\subsection{Scheduling-Scope}
+\textbf{Process-Contention Scope: }Alle Threads \underline{innerhalb} des aktiven Prozesses berücksichtigt
+\textbf{System-Contention Scope: }Alle Threads \underline{des gesamten Systems} berücksichtigt
+
+\subsection{Scheduling-Strategien}
+%\subsubsection{Parallele Ausführung}
+%$n$ Threads auf $n$ Prozessoren (in Praxis unrealistisch, immer mehr Threads), $>n$ Proz. bringt kein Vorteil
+\subsubsection{Anforderungen an Scheduler}
+\textbf{Aus Sicht Applikation/Offene Systeme: }Durchlaufzeit (Start \&Ende Threat), Antwortzeit (Empfang Request bis Antwort), Wartezeit (Zeit in Ready-Queue) \textbf{Geschlossene Sys./Embedded/Server: }Durchsatz (Anz. Threads pro Interall bearbeitet), Prozessorverwendung (\% Verwendung gegenüber Nichtverwendung), Latenz (durchschnittliche Zeit Auftreten \& Ereignis verarbeiten)
+%\subsubsection{First Come First Served (FCFS)}
+%Reihenfolge der Ready-Queue, nicht präemptiv (geben Prozessor nicht ab)
+%\subsubsection{Shortest Job First (SJF)}
+%Thread mit kürzestem nächsten Prozessor-Burst, alle gleich$\rightarrow$FCFS, kooperativ oder präemtiv, ergibt optimale Wartezeit, Problem: Länge Prozessor-Burst nur annähernd bekannt
+%\subsubsection{Round-Robin}
+%Zeitscheibe wird definiert: 10 bis 100 ms, Grundprinzip von FCFS mit Zeitbegrenzung, nach Ablauf der Zeit $\rightarrow$ hinten bei Ready-Queue angehängt, Zeitscheibe %beeinflusst massiv
+\subsubsection{Prioritäten-basiertes Scheduling}
+Jeder Thread eine Nr., Threads mit gleicher Prio $\rightarrow$ FCFS\\
+Risiko$\rightarrow$Starvation, Thread mit niedriger Prio läuft unendlich lange nicht, Lösung: Aging (in best. Abständen Prio um 1 erhöht)
+\subsubsection{Multi-Level Scheduling}
+nach bestimmten Kriterien in verschiedene Level (z.B. Priorität, Prozesstyp, Hinter- oder Vordergrund), fürs jedes Level eigene Queue, jedes Level kann eigenes Verfahren haben, Queues können priorisiert werden
+\subsubsection{Multi-Level Scheduling mit Feedback}
+Je Priorität eine Ready-Queue, Threads aus Queue mit höherer Prio bevorzugt, Wenn mehr als Level-Zeit benötigt$\rightarrow$ Prio -1 (Thread landet in Queue mit niedriger Prio) (wenn benötigte Zeit = Level-Zeit $\rightarrow$ bleibt auf altem Level), Queue mit niedriger Prio $\rightarrow$ länger, Threads mit kurzen Prozessor-Bursts werden bevorzugt
+
+
+
+

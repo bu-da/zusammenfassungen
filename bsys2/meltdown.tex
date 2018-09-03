@@ -1,0 +1,64 @@
+\section{Meltdown}
+
+\subsection{Ausgangslage}
+\begin{itemize}
+    \item Jeder Prozess hat eigenen virtuellen Adressraum
+    \item Fordert ein Prozess einen OS-Service an, müsste man eigentlich den Kontext wechseln
+    \item Macht er nicht, bleibt in aktuellem Kontext des Prozesses | Performancegründe!
+    \begin{itemize}
+        \item OS mappt alle Kernel-Daten in Adressraum des Prozesses
+        \item Table-Config: nur OS kann daraufzugreifen
+    \end{itemize}
+    \item OS muss auf alle Prozesse zugreifen können
+    \begin{itemize}
+        \item Der OS-Kernel mappt den \underline{gesamten physischen} Hauptspeicher in jeden virtuellen Adressraum
+    \end{itemize}
+\end{itemize}
+$\rightarrow$Ganzer Hauptspeicher kann ausgelesen werden
+
+\subsection{Out-Of-Order Execution}
+Moderne CPUs optimieren $\rightarrow$ Reihenfolge der Ausführung kann sich ändern
+O3E möglich, auch wenn Befehl später nicht ausgeführt wird:\\
+mov rax, [0x1234]\\
+jz label\\
+mov rbx, 9 \textit{Ergebnis wird verworfen, wenn übersprungen}\\
+label:
+
+\subsection{Seiteneffekte O3E}
+\begin{minted}{C}
+char d = 65;
+int * p = 0;
+*p = 1; //Exceptiom kann nicht an Adresse 0 schreiben
+char c = array [d]; //wird spekulativ ausgeführt
+\end{minted}
+Cache kann man nicht auslesen, aber Zugriffszeitmessung möglich, kurz$\rightarrow$Zeile war im Cache
+
+\subsection{Eigentlicher Angriff}
+Array als Hilfsmittel\\
+Array in Assembler: [Startadresse + index * Variablengrösse in Byte]
+\begin{enumerate}
+    \item clflush p für jedes Array-Element $\rightarrow$ Elemente werden aus Cache entfernt
+    \item via O3E auf Array zugreifen, kurze Zugriffszeit $\rightarrow$Adresse mit verw. Daten gefunden
+\end{enumerate}
+\textbf{Array-Element-Grösse: }Array-Elemente auf verschiedene Pages verteilen \prgc{array[i * 4096]}, da Chache optimiert sein könnte (mehrere Zeilen miteinander lädt)
+
+\subsection{Gegenmassnahmen}
+\textbf{Kernel page-table isolation: }Verschiedene Page-Tables für Kernel/User-Mode $\rightarrow$ negative Ausw. auf Perfomance
+
+\subsection{Spectre}
+Ziel wie Meltdown. Weitere Eigenschaft wird ausgenutzt:
+\subsubsection{Branch Prediction}
+Prozis lernen ob Sprung erfolgt oder nicht. Muss Prozi auf Sprungbedingung warten$\rightarrow$Ausführung wahrscheinlicher Zweig
+
+\subsubsection{Angriffsflächen}
+\begin{itemize}
+    \item Alle Prozesse, die auf gleichem Prozi, haben die gleichen Vorhersagen$\rightarrow$Vorhersagen können für andere Prozesse trainiert werden
+    \item Opfer-Prozess muss zur Kooperation gezwungen werden $\rightarrow$Ziel im verworfenen Branch auf Speicher zugreifen
+\end{itemize}
+
+
+
+
+
+
+

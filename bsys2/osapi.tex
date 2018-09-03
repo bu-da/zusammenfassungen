@@ -1,0 +1,38 @@
+\section{OS API}
+\subsection{Aufgaben OS}
+\begin{itemize}
+    \item Abstraktion/Portabilität von Hardware, Protokolle, Software-Services
+    \item Resourcenmanagement/Isolation der Anwendungen voneinander (Rechenzeit, Hauptspeicherverwaltung, Sek. Speicher, Netzwerkbandbreite)
+    \item Benutzerverwaltung/Sicherheit
+\end{itemize}
+\subsection{Prozessor Privilege Level}
+mind. 2 Privilege Levels auf Prozessor: Kernel Mode, User Mode\\
+Kernel bestimmt in welchem Modus ein Programm läuft (Entscheid somit softwareseitig)
+%\textbf{Micro-Kernel:} selbst Gerätetreiber in User Mode \textcolor{green}{+} Stabilität, Analysierbarkeit \textcolor{red}{-} Performance (häufige Mode-Wechsel)
+%\textbf{Monolithisch (Linux etc.):} sehr viel Funkt. in Kernel, welche nicht nötig wären \textcolor{green}{+} Performance (weniger Wechsel) \textcolor{red}{-}Programmierfehler (wilde Pointer, einige Anwendungen in Kernel, Abstimmung zwischen Programmierern etc.)
+
+\subsubsection{Wechsel vom User Mode in Kernel Mode}
+\textit{syscall Instruktion notwendig $\rightarrow$ Prozessor schaltet in Kernel-Mode um $\rightarrow$ setzt Instruction Pointer auf System Call Handler\\}
+jede OS-Kernel-Funktion hat somit einen Code. Dieser wird in Register übergeben. Je nach Funktion in anderen Register weitere Infos.\\
+Linux-Kernel nicht binärkompatibel wegen unterschiedlichen Calling Conventions (anderer syscall Code/anderes Register) $\rightarrow$ Appl. für jeden Kernel einzeln kompilieren, C-API (auf Quellcode, ABI = interface auf binary) verwenden
+
+\subsection{Programmargumente}
+Argumente vom OS in Speicherbereich des Programms als Array mit Pointern auf null-terminierte Strings\\
+\prgc{main (int argc, char** argv)}: \prgc{argc} Anz. Argumente, \prgc{argv} Pointer auf Array mit Strings(\prgc{char*}), \prgc{argv[0]} Programmname!
+
+\subsection{Umgebungsvariablen}
+Umgebungsvar. vom OS in Speicherbereich des Programms kopiert als \textcolor{green}{Array mit Pointern} auf \textcolor{brown}{null-terminierte Strings} (wie Programmarg.)\\
+Gemäss POSIX jeder Prozess eigene Umgebungsvariablen\\
+environ $\rightarrow$\textcolor{green}{environ[0]}$\rightarrow$ \textcolor{brown}{Key0=Value0}\\
+\textcolor{brown}{String:} \textcolor{blue}{PATH}=\textcolor{red}{/home/hsr/bin}, \textcolor{blue}{Key} (unique) \textcolor{red}{Value}\\
+Umgebungsvariablen initial vom erzeugenden Prozess festgelegt (z.B. shell)
+
+\subsubsection{API}
+nie direkt über environ!\\
+\prgc{char * getenv (const char * key)} Adresse 1. Zeichens, 0 nichts gefunden\\
+\prgc{int setenv(const char *key, const char *value, int overwrite);}\\
+overwrite != 0 ganzer Wert wird mit neuem String übschrieben\\
+\prgc{int unsetenv(const char *key);} entfernt Umgebungsvariable\\
+\prgc{int putenv (char * kvp)} ersetzt mit Pointer, keine Kopie (wie set)!\\
+
+Einfügen von neuen Umgebungsvar.$\rightarrow$OS legt neuen grösseren Speicher an, kopiert Array dorthin

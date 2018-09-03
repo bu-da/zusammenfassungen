@@ -1,0 +1,80 @@
+\section{Programmiersprache C}
+\subsection{Toolchain}
+\textbf{Präprozessor: }entfernt alle Kommentare, ersetzt alle Makros\\
+%\prgc{#define struct } definiert ein Makro\\
+%\prgc{#if #else/elif #endif} je nach Bedingung wird Text inkl.\\
+%\prgc{#include <header.h>} kopiert gesamten Inhalt an Stelle\\
+%\prgc{<file.h>} nur im Systemverzeichnis geschaut, \prgc{"file.h"} Systemverz. + aktuellem\\
+\textit{Output: reine C-Datei/Translation-Unit}\\
+\textbf{Compiler: }übersetzt Translation-Unit nach Assembler
+\begin{itemize}[noitemsep]
+\item erstellt Abstract Syntax Tree(AST) (=Programm)
+%\item Optimierungen
+%\item Festlegung welche Variablen in welchen Registern \& welche Variablen im Speicher
+%\item Bestimmt, welche Funktionen tatsächlich Funktionen sind oder geinlinet %o call the function faster than it would otherwise generally by substituting the code of the function into its caller https://www.greenend.org.uk/rjk/tech/inline.html 
+werden
+\end{itemize}
+\textit{Output: Assembly file(.s, mit Referenzen auf externe Variablen/Funktionen}\\
+\textbf{Assembler: }übersetzt Text-Assembler in Binärdatei (\textit{Objekt-Datei .o}, Referenzen auf externe Variablen/Funktionen)\\
+\textbf{Linker: }Auflösung von Referenzen
+\begin{itemize}
+\item Statische Bibliotheken: noch Referenzen auf externe Variablen/Funktionen
+\item Executables/dynamische: vollständig aufgelöst
+\end{itemize}
+\textit{Output: Bibliotheken (statisch/dynamisch), Executable}
+\subsection{Sprache}
+%\subsubsection{Basistypen}\\
+%\begin{tabular}{ll}
+%\prgc{char}                     & mind. 8 Bit\\
+%\prgc{[signed] short [int]}     & mind. 16 Bit\\
+%\prgc{[signed] int}             & mind. 16 Bit\\
+%\prgc{[signed] long [int]}      & mind. 32 Bit\\
+%\prgc{[signed] long long [int]} & mind. 64 Bit
+%\end{tabular}\\
+%default-mässig alle Basistypen signed
+
+\subsubsection{Operatoren}
+\& Adresse, * Wert an Adresse\\
+Logisch AND, OR: \&\&, $\vert\vert$ \\
+Bitweises AND, OR, XOR, Negation: \&, $\vert$, $\wedge$, $\sim$
+
+%\subsubsection{Pointer generell}\\
+%Testen auf Nullpointer: \prgc{if (!px)} $\leftrightarrow$ \prgc{if(px == 0)}\\
+%\prgc{void *} implizite Konvertierung in beide Richtung (kein Casting nötig)
+
+%\subsubsection{Array}\\
+%\prgc{a[b]} $\leftrightarrow$ \prgc{*(a + sizeof(T) * b)}\\
+%\prgc{int *p1 = a;}/\prgc{= &a[0];} $\rightarrow$ \prgc{p1[2] = ..;} möglich
+
+%\subsubsection{Funktionspointer}
+%\begin{minted}{C}
+%int (*bez) (int, int) = &f;
+%p = g; //andere Funktion zuweisen
+%int i = (*bez) (1,2);
+%int j = bez (3,4); //Alternativer Aufruf
+%\end{minted}
+%\prgc{typedef void (*button_event_handler)(..)}
+
+%\subsubsection{Structs}
+%\begin{minted}{C}
+%struct T //Tag für Wiederverwendung
+%{int x; int y;};
+%struct T t = {.x = 5, .y = 7}; //Initalisierung
+%\end{minted}
+%Verwendung mit \prgc{typedef}: \prgc{typedef struct {..} T;} $\rightarrow$ \prgc{T t;}\\
+%belegt gleichen Speicherplatz wie \prgc{int x; int y;}einzeln\\
+%Zugriff: \prgc{t.x = t.y}\\
+%\prgc{x} gleiche Adresse wie Struct\\
+%Member müssen im Speicher nicht dicht liegen (Padding möglich)\\
+%\textbf{Pointer auf Structs: }\prgc{struct T* z; t->x = t->y;}\\
+\textbf{Zuweisungen eines Structs auf einen anderen $\rightarrow$ ganzer Inhalt kopiert(nicht nur Referenz)}
+
+%\subsubsection{Speicher auf Heap allozieren}
+%\begin{minted}{c}
+%void * p = malloc (anz_bytes);
+%free(p); //Speicher freigeben
+%\end{minted}
+
+%\subsubsection{\prgc{printf}}
+\prgc{write();} schreibt sofort, \prgc{fflush(stdout)} Buffer leeren\\
+\%i \prgc{int}, \%X \prgc{unsigned int} als Hex, \%li \prgc{long}, \%lli \prgc{long long}, \%p \prgc{void*}, \%c \pgrc{int} schreibt char \%s \prgc{char*}

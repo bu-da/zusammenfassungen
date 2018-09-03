@@ -1,0 +1,64 @@
+\section{Shared Memory}
+Frames des Hauptspeichers werden zwei Prozessen freigegeben:
+\begin{itemize}
+    \item In P1 wird Page V1 auf einen Frame F abgebildet
+    \item In P2 wird Page V2 auf \underline{denselben} Frame F abgebildet
+\end{itemize}
+Beide Prozesse können beliebig daraufzugreifen
+
+\textbf{Verwendung von Pointern: }Sollen Pointer verwendet werden, müssen diese relativ zu einer Anfangsadresse sein
+(Offset auf Startadresse)
+
+%\subsection{POSIX API}
+%OS benötigt 2 Typen von Objekten:
+%\begin{itemize}
+%    \item spezielles Objekt(wie Datei behandelt) zur Verwaltung von Infos zu gemeinsamem Speicher
+%    \item Objekt pro Prozess um Mappings zu speichern
+%\end{itemize}
+
+%\begin{minted}{C}
+%int fd = shm_open(//gibt Deskriptor zurück
+%"/ mysharedmemory ",//name
+%O_RDWR | O_CREATE, //zum lesen/schreiben öffnen 
+%S_IRUSR | S_IWUSR);//Berechtigung Lesen/Schreiben
+
+%int ftruncate ( int fd , offset_t length );
+%//Grösse setzen, zwingend!!
+%int close ( int fd ); 
+%//Shr bleibt in System, auch ohne Prozess
+%int shm_unlink (const char * name);//löschen
+
+%//Mappt Shr in virt. Adressraum des akt. Prozesses
+%//gibt Adresse des 1. Bytes zurück
+%void * address = mmap (
+%0 , // void * hint_address ,
+%size_of_shared_memory , // size_t length ,
+%PROT_READ | PROT_WRITE , // int protection ,
+%MAP_SHARED , // int flags ,
+%fd , // int file_descriptor ,
+%0 // off_t offset
+%);
+
+%int munmap ( void * address , size_t length );
+%//entfernt Mapping
+%\end{minted}
+
+%\subsection{Vergleich Message-Passing/Shared Memory}
+%\textbf{Shared Memory: }\textcolor{green}{+} schneller zu realisieren (Umwandlung Appl. mit 1 Prozess auf mehrere)
+%\textcolor{red}{-}Programme schwer wartbar \textcolor{red}{-}implizite Abhängigkeiten$\rightarrow$nebenläufig, aber nicht echt parallel
+%\textcolor{red}{-}System weniger stark modularisiert, Prozesse schlechter gegeneinander geschützt
+%\textbf{Message Passing: }\textcolor{red}{-}mehr Engineering-Aufwand (bei bestehenden Applikationen, neu Implementation nötig) \textcolor{green}{+}bei sauber gekapselten Programmen geringeres Problem \textcolor{green}{+}Appl. leicht ausbaufähig zu verteilten Systemen (bei einigen OS schon integriert)\\
+%\subsection{Performance-Vergleich}\\
+%\begin{description}
+%    \item[Einzel-Prozessor-Systeme] Shared Memory
+%    \item[Mehr-Prozessor-Systeme] SMR benötigt zusätzlichen Aufwand hardwaremässig
+%    \begin{itemize}
+%        \item Änderung im Speicher, häufig erstmals nur im Cache
+%        \item Caches der anderen Prozis sehen Änderung nicht
+%        \item $\rightarrow$Caches nicht kohärent
+%        \item Hardware muss dies updaten (Cache Coherency Protocol)
+%    \end{itemize}
+%\end{description}
+$\rightarrow$beide Varianten liegen bei Mehr-Prozessoren-Systemen gleichauf, Message-Passing vermutlich perfomanter in Zukunft
+
+

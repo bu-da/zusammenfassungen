@@ -1,0 +1,124 @@
+\section{Interprozess-Kommunikation (IPC)}
+\subsection{Signale}
+ermöglichen Unterbruch eines Prozesses von aussen\\
+wird vom OS wie ein Interrupt behandelt
+%\begin{itemize}
+%    \item Unterbruch des laufenden Prozesses/(Threads)
+%    \item Auswahl Signal-Handler Funktion
+%    \item Ausführen Signal-Handler Funktion
+%    \item Fortsetzen des Prozesses (falls Prozess nicht beendet)
+%\end{itemize}
+
+\subsubsection{Quelle von Signalen}
+\textbf{Hardware/OS: }Ungültige Instruktion, Zugriff auf ungültigen Speicherbereich (\textit{segmentation fault}), Division durch 0
+\textbf{Andere Prozesse: }Ctrl-C, \prgc{kill}-Kommando
+
+\subsubsection{Signale behandeln}
+Jeder Prozess pro Signal 1 Handler (bei Prozessbeginn Default-Handler)
+\begin{tabular}{ll}
+     Ignore-Handler & ignoriert Signal \\
+     Terminate-Handler &  beendet Programm\\
+     Abnormal-Terminate-Handler & beendet + Core Dump(Speicherauszug)
+\end{tabular}
+\textbf{Ausser SIGKILL \& SIGSTOP alle Handler überschreibbar}
+
+\subsubsection{Wichtige Signale}
+\textbf{Programmfehler}$\rightarrow$Abnormal-Terminate-Handler\\
+SIGFPE Fehler in arithmetischer Operation SIGILL Ungültige Instruktion SIGSEGV Ungültiger Speicherzugriff SIGSYS Ungültiger Systemaufruf
+
+\textbf{Prozesse abbrechen}$\rightarrow$Terminate-Handler\\
+SIGTERM normale Beendigungsanfrage \bash{kill 1234}
+SIGINT nachdrücklichere Aufforderung \bash{Ctrl-C}
+SIGQUIT anormale Terminierung \bash{Ctrl-\ (Ctrl-Alt Gr-<)}
+SIGABRT anormale Terminierung (vom Prozess selber bei Programmierfehler)
+SIGKILL letzte Möglichkeit, kann nicht blockiert/ignoriert/abgefangen werden
+
+\textbf{Stop und Continue}\\
+SIGTSTP versetzt in Zustand \textit{stopped}, ähnlich zu \textit{waiting} \prgc{Ctrl-Z} 
+SIGSTOP wie SIGTSTP, kann nicht abefangen/ignoriert werden
+SIGCONT setzt Prozess fort
+
+%\bash{kill 1234 5678} SIGTERM an Prozesse 1234 5678\\
+%\bash{kill -Kill 1234} SIGKILL an Prozess 1234\\
+%\bash{kill -l} listet alle möglichen Signale auf 
+
+\subsubsection{Signalhandler ändern}
+\begin{minted}{C}
+int sigaction (//um Handler für Signal anzumelden
+int signal, //Nr. des Signals, welches man handeln will
+struct sigaction * new, 
+struct sigaction * old)//0 wenn unerwünscht
+\end{minted}
+\begin{minted}{C}
+struct sigaction{
+void (* sa_handler )( int );//Handlerfunktion
+sigset_t sa_mask;//alle zu blockierende Signale
+int sa_flags;};
+//sigset = Menge aller zu blockierender Signale
+\end{minted}
+%\begin{minted}{C}
+%sigemptyset(sigset_t *set);
+%sigfillset(sigset_t *set);
+%sigaddset(sigset_t *set, int signal);//hinzufügen
+%sigdelset(sigset_t *set, int signal);//entfernen
+%sigismember(const sigset_t *set, int signal);//1 -> true
+%\end{minted}
+
+\subsection{Message-Passing}
+%Implementationsabhängig: fixe/variable Nachrichtengrösse + folgende Punkte: %, Direkte/indirekte Kommunikation, Synchrone/asynchrone Kommunikation, Pufferung, Mit/ohne Prioritäten
+
+\subsubsection{Direkte Kommunikation}
+Sender muss Empfänger kennen \prgc{send (receiver, message)}\\
+symmetrisches Empfangen: Empfänger muss Sender kennen %\prgc{receive (sender, message)}
+Asymmetrisches Empfangen: Empfänger erhält ID in Out-Parameter (kennt Sender nicht) %\prgc{receive(id, message)}
+
+\subsubsection{Indirekte Kommunikation}
+Beide Teilnehmer müssen gleiche Mailbox/Port/Queue kennen\\
+Mehrere Mailboxen zwischen Sender/Receiver möglich\\
+%\prgc{send(Queue, message)} \prgc{receive(Queue, message)}\\
+Queue gehört zu Prozess oder zu OS(Lösch/Erzeugmechanism.)
+
+\subsubsection{Synchronisation}
+blockierend (synchron)/nicht-blockierend(asynchron)\\
+\textbf{synchrones Senden} Sender blockiert bis Nachricht empfangen\\
+%\textbf{asynchrones Senden} Sender sendet und fährt weiter
+\textbf{synchrones Empfangen} Empfänger blockiert bis Nachricht verfügbar\\
+%\textbf{asynchrones Empfangen} 
+$\rightarrow$Alle Kombinationen möglich (z.B. synchroner Sender/asynchroner Receiver)
+
+\subsubsection{Rendezvous}
+Sender \& Empfänger blockierend\\
+OS kann direkt vom Sende- in Empfängerprozess kopieren (meistens ungepuffert)
+(implizite Synch, Impl. Producer/Consumer-Problem)
+
+%\subsubsection{Pufferung}
+%\textit{Keine: }Queue-Länge = 0 | Sender muss blockieren
+%\textit{Beschränkt: }$n$ Nachrichten können zwischengespeichert werden | Sender blockiert, wenn Queue voll
+%\textit{Unbeschränkt}
+
+%\subsubsection{Prioriäten}
+%Empfänger holt Nachricht mit höchster Prio zuerst
+
+\subsection{POSIX API}
+\begin{itemize}
+    \item Message-Queues vom OS
+    \item variable Nachrichtenlänge, Maximum pro Queue einstellbar
+    \item synchrone/asynchrone Verwendung
+    \item Prioritäten
+\end{itemize}
+
+\begin{minted}{C}
+mqd_t //Message-Queue-Descriptor
+mqd_t mq_open (const char * name , int flags,
+mode_t mode , struct mq_attr * attr);//attr=0 -> Default-Attr.
+//Flags = 0_RDONLY, 0_CREAT, 0_NONBLOCK
+int mq_close(mqd_t queue);//bleibt im OS bis Entfernung
+int mq_unlink(const char * name);//wird entfernt, wenn keine Proz.
+int mq_send ( mqd_t queue , const char * msg ,
+size_t length , unsigned int priority);//blockiert wenn Queue voll
+int mq_receive ( mqd_t queue , const char * msg,
+size_t length , unsigned int * priority);//blockiert, wenn leer
+//length mind. solange wie max. Grösse Nachricht
+\end{minted}
+
+

@@ -1,0 +1,76 @@
+\section{Bibliotheken}
+
+%\subsection{Statische Bibliotheken} 
+%Archiv von Obj-Dateien, wie mehrere Obj-Dateien behandelt lib$<$name$>$.a\\
+%\textcolor{green}{+}einfache Verwendung/Implementation
+%\textcolor{red}{-}Neuerstellung der Programme bei Änderungen der Lib nötig
+%\textcolor{red}{-}fixe Funktionalität
+
+%\subsection{Dynamische Bibliotheken}
+%Executable nur noch Referenz auf Bibliothek, zur Lade-/Laufzeit gelinkt
+%\textcolor{green}{+}Programm muss nur Bibliothek laden, die es braucht
+
+%\subsection{API}
+%\begin{minted}{c}
+%//Öffnet dynamische Bibliothek, Handle zurück
+%void* dlopen(char* filename, int mode)
+%//dlsym Adresse des Symbols als void*
+%typedef int (*funct_t)(int);
+%funct_t f = dlsym(handle, "my_function");
+%int *i = dlsym(handle, "my_int");
+%(*f)(*i);
+%int dlclose(void* handle);
+%char dlerror();
+%\end{minted}
+
+%\subsection{Shared Objects}
+%Referenz in Executable nötig, OS sucht bei Programmstart automatisch richtige Bibliotheken\\
+%Versionen und Unterversionen können gleichzeitig verwendet werden/existieren
+
+\subsubsection{Benennungsschema}
+\begin{tabular}{|l|l|l|}
+\hline
+   Linker-Name:  & lib + Bibliotheksname + .so & libmylib.so\\
+   \hline
+   Shared Object-Name: & Linker-Name + . + Vers.nr. & libmylib.so.2\\
+   \hline
+   Real-Name: & SO-Name + . + Untervers.nr. & libmylib.so.2.1\\
+   \hline
+\end{tabular}
+Shared Object-Name für Loader\\
+\prgc{/usr/lib} + Linker-Name, Softlink auf $\rightarrow$ \prgc{/usr/lib} + SO-Name, Softlink auf $\rightarrow$ absoluter Speicherort \prgc{/usr/lib} + Real-Name\\
+Versionnr. erhöhen, wenn Schnittstelle ändert\\
+Unterversionsnr. erhöhen, wenn Schnittstelle bleibt (Bugfixes)
+
+\subsection{Implementierung}
+Dynamische Bibliotheken müssen verschiebbar sein\\
+Code zwischen Programmen soll geteilt werden: nur einmal im Hauptspeicher $\rightarrow$ Shared Memory\\
+Anwendung: Virtuelle Pages der Prozesse werden auf denselben Frame im RAM gemappt $\rightarrow$ Adressen müssen relativ sein! (position-independent)
+
+%\subsubsection{Position-Independent}
+%Relative Adressen zum Instruction Pointer\\
+%ist somit egal, wo im Speicher der Code liegt\\
+%X86\_64: relative Calls \& Move-Instr.
+%x86\_32: nur relative Calls
+
+%\subsubsection{Relative Moves via Relative Calls}
+%Funktion f will relativen Move ausführen:
+%\begin{enumerate}
+%    \item Aufruf der Helperfunktion h durch f
+%    \item h kopiert Rücksprungsadresse vom Stack in Register \& springt zurück
+%\end{enumerate}
+%$\rightarrow$ f hat Rücksprungsadresse = IP in Register, kann relativ dazu arbeiten
+
+\subsubsection{Global Offset Table (GOT)}
+eine pro dynamischer Bibliothek/Executable\\
+pro Symbol, das von anderer dynamischer Bibliothek benötigt wird, ein Eintrag\\
+Im Code werden relative Adressen in die GOT verwendet.\\
+Loader füllt zur Laufzeit "echte" Adresse in GOT ein.
+
+\subsubsection{Procedure Linkage Table (PLT)}
+implementiert Lazy Binding(Funktionen werden erst gebunden, wenn benötigt)\\
+pro Funktion ein Eintrag\\
+PLT-Eintrag enthält Sprungbefehl auf Stelle in GOT\\
+GOT-Eintrag zunächst Proxy-Funktion\\
+Proxy-Funktion sucht Link zu richtiger Funktion, überschreibt dann eigener GOT-Eintrag\\
+Vorteil: Erspart bedingten Sprung

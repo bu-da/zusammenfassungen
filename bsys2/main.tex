@@ -1,0 +1,96 @@
+\documentclass[9pt,landscape,a4paper]{article}
+\usepackage{multicol}
+\usepackage[landscape]{geometry}
+\usepackage{hyperref}
+\usepackage[utf8]{inputenc}
+\usepackage{minted}
+\usepackage{graphicx}
+\usepackage[binary-units]{siunitx}
+\usepackage[usenames]{xcolor}
+\usepackage{ulem}
+\usepackage{wrapfig}
+\usepackage{amssymb}
+
+\usepackage[sfdefault]{roboto}
+
+\geometry{top=0.3 cm,left=0.3cm,right=0.3cm,bottom=0.3cm}
+
+% Turn off header and footer
+\pagestyle{empty}
+ 
+% Redefine section commands to use less space
+\makeatletter
+\renewcommand{\section}{\@startsection{section}{1}{0mm}%
+                                {-1ex plus -.5ex minus -.2ex}%
+                                {0.5ex plus .2ex}%x
+                                {\normalfont\large\bfseries}}
+\renewcommand{\subsection}{\@startsection{subsection}{2}{0mm}%
+                                {-1explus -.5ex minus -.2ex}%
+                                {0.5ex plus .2ex}%
+                                {\normalfont\small\bfseries}}
+\renewcommand{\subsubsection}{\@startsection{subsubsection}{3}{0mm}%
+                                {-1ex plus -.5ex minus -.2ex}%
+                                {1ex plus .2ex}%
+                                {\normalfont\footnotesize\bfseries}}
+\renewcommand{\paragraph}{\@startsection{paragraph}{3}{\z@}%
+                                {-1ex plus -.5ex minus -.2ex}%
+                                {-.5em}%
+                                {\normalfont\scriptsize\bfseries}}
+\makeatother
+
+% Don't print section numbers
+\setcounter{secnumdepth}{0}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt plus 0.5ex}
+
+% Compact lists
+\usepackage{enumitem}
+\setlist{nosep}
+\setitemize{leftmargin=*, noitemsep}
+
+%Define Colors
+\definecolor{reg1}{HTML}{D6B656}
+\definecolor{reg2}{HTML}{6C8EBF}
+\definecolor{reg3}{HTML}{82B366}
+
+\definecolor{green}{HTML}{82B366}
+\definecolor{blue}{HTML}{4a86e8}
+
+%C-Code inline
+\newcommand{\prgc}[1]{\mintinline{C}{#1}}
+\newcommand{\bash}[1]{\mintinline{bash}{#1}}
+% -----------------------------------------------------------------------
+
+\begin{document}
+
+\footnotesize
+\begin{multicols*}{3}
+
+% multicol parameters
+% These lengths are set only within the two main columns
+%\setlength{\columnseprule}{0.25pt}
+\setlength{\premulticols}{1pt}
+\setlength{\postmulticols}{1pt}
+\setlength{\multicolsep}{1pt}
+\setlength{\columnsep}{2pt}
+
+%\input{grundlagen.tex}
+\input{c.tex}
+\input{osapi.tex}
+\input{prozesse.tex}
+\input{threads.tex}
+\input{scheduling.tex}
+\input{synchronisation.tex}
+\input{Interprozess-Kommunikation.tex}
+\input{sharedmemory.tex}
+\input{dateisysteme-api.tex}
+\input{dateisysteme_2.tex}
+\input{programme.tex}
+\input{bibliotheken.tex}
+\input{xwindow.tex}
+\input{encoding.tex}
+\input{meltdown.tex}
+
+\end{multicols*}
+\end{document}

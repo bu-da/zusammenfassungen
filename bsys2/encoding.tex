@@ -1,0 +1,48 @@
+\section{Encoding}
+%Taste: \prgc{Keycode}, damit assoziiert \prgc{KeySym}\\
+%\prgc{KeySym XLookupKeysym (XKeyEvent*, int index)}\\
+%\textbf{ASCII:} 7 Bit, mehrere Erweiterungen mit 8-Bit(Codepage muss beim Decoding bekannt sein!)\\
+CP in $[$D800, DFFF$]$ für alle UTF-Codierungen nicht erlaubt
+
+\subsection{Unicode}
+Coderaum/Codepoints: 17 Ebenen à $2^{16}$ Punkte = 1'114'112 Punkte\\
+Codepoint: Nummer eines Zeichens\\
+Code-Unit: Einheit um Zeichen in Encoding darzustellen\\
+CU-Länge: 8-Bit, 16-Bit, 32-Bit
+
+%\subsubsection{UTF-32}
+%Jeder Code-Point direkt in Code-Unit, \textit{Bsp. "got. asha", \prgc{1 03 30}}\\
+%\begin{tabular}{ll}
+%   Big Endian:  &  \prgc{00 01 03 30}\\
+%   Little Endian:  &  \prgc{30 03 01 00}
+%\end{tabular}
+
+\subsubsection{UTF-8}
+\textbf{Endianess egal!}
+
+\begin{tabular}{lllll}
+  Code-Point in & 1 & 2 & 3 & 4 \\
+  \hline
+  $[$0, 7F$]$ & 0xxx'xxxx & & & \\
+  $[$80, 7FF$]$ & 110x'xxxx & 10xx'xxxx & & \\
+  $[$800, FFFF$]$ & 1110'xxxx & 10xx'xxxx & 10xx'xxxx & \\
+  $[$1'0000, 10'FFFF$]$ & 1111'0xxx & 10xx'xxxx & 10xx'xxxx & 10xx'xxxx \\
+\end{tabular}\\
+
+\subsubsection{UTF-16}
+\begin{tabular}{ll}
+  Code-Point in & \\
+   \hline
+  $[$0, FFFF$]$ & Code-Unit = Code-Point\\
+$[$D800, DFFF$]$ & reserved (surrogate)\\
+$[$1'0000, 10'FFFF$]$ &   1101'10($[P_{20}$, $P_{16}]$-1)$[P_{15}$, $P_{10}]$1101'11$[P_{9}$, $P_{0}]$\\
+& in CU werden nur $[P_{19}$, $P_{0}]$ geschrieben
+ \end{tabular}\\
+2 CU's resultierend $\rightarrow$ Surrogate-Pairs
+%Beispiel: \prgc{1 04 37}	ist \textcolor{blue}{0001 0000 01}\textcolor{brown}{00 0011 0111} \\
+%Daraus wird \textbf{1101 10}\textcolor{blue}{00 0000 0001} \textbf{1101 11}\textcolor{brown}{00 0011 0111} \\
+%Als code units: \textcolor{blue}{D801} \textcolor{brown}{DC37} \\
+%UTF16-BE: \textcolor{blue}{D8 01} \textcolor{brown}{DC 37} \\
+%UTF16-LE: \textcolor{blue}{01 D8} \textcolor{brown}{37 DC}
+
+
